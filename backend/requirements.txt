@@ -1,0 +1,35 @@
+# ── Web framework ──────────────────────────────────────────────────────────────
+fastapi                  # The web framework. Handles HTTP routes, request parsing, SSE streaming
+uvicorn[standard]        # ASGI server that RUNS FastAPI. 'standard' adds websocket + reload support
+
+# ── Data validation ────────────────────────────────────────────────────────────
+pydantic>=2.0            # Validates every request/response shape. v2 is 5-17x faster than v1
+pydantic-settings        # Lets config.py read from .env file with type safety
+
+# ── Environment ────────────────────────────────────────────────────────────────
+python-dotenv            # Loads .env file into os.environ at startup
+
+# ── Database ───────────────────────────────────────────────────────────────────
+asyncpg                  # Async PostgreSQL driver. Non-blocking DB calls = handles many users at once
+pgvector                 # Python client for pgvector extension — lets us store/query 3072-dim vectors
+
+# ── AI / ML ────────────────────────────────────────────────────────────────────
+openai>=1.0              # Official OpenAI SDK — embeddings, GPT-5.5 LLM, vision, streaming
+pymupdf                  # PDF parsing library (import as 'fitz') — text, tables, image extraction
+rank-bm25                # BM25 sparse retrieval — keyword matching, runs in-memory, no server needed
+flashrank                # Local cross-encoder reranker — improves precision 15-40%, no API key
+
+# ── LangGraph orchestration ────────────────────────────────────────────────────
+langgraph                # Orchestrates the 10-step RAG pipeline as a stateful directed graph
+langchain-core           # Core abstractions used by LangGraph (messages, runnables, state)
+
+# ── HTTP + File handling ────────────────────────────────────────────────────────
+httpx                    # Async HTTP client — used internally by openai SDK
+python-multipart         # Parses multipart/form-data — required for FastAPI file uploads
+
+# ── Rate limiting ──────────────────────────────────────────────────────────────
+slowapi                  # Rate limiting for FastAPI. Limits /query to 10 req/min per IP
+
+# ── Testing ────────────────────────────────────────────────────────────────────
+pytest                   # Test runner
+pytest-asyncio           # Lets pytest run async test functions (needed for async FastAPI code)
