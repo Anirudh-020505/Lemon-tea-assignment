@@ -28,14 +28,25 @@ class DenseRetriever:
         async with pool.acquire() as conn:
             rows = await conn.fetch(sql, str(query_vector), top_k)
             
+        import json
         chunks = []
         for row in rows:
+            meta = row['metadata']
+            if isinstance(meta, str):
+                try:
+                    meta = json.loads(meta)
+                except:
+                    meta = {}
+            elif not isinstance(meta, dict):
+                meta = {}
+                
             chunks.append(DocumentChunk(
                 id=str(row['id']),
-                doc_id=str(row['doc_id']),
+                document_id=str(row['doc_id']),
                 content=row['content'],
+                page_number=row['page_num'] or 1,
                 score=row['score'],
-                metadata=row['metadata'] or {}
+                metadata=meta
             ))
             
         return chunks
