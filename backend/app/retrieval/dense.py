@@ -24,3 +24,18 @@ class DenseRetriever:
             JOIN embeddings e ON c.id = e.chunk_id
             ORDER BY e.embedding <=> $1::vector
             LIMIT $2;
+        """
+        async with pool.acquire() as conn:
+            rows = await conn.fetch(sql, str(query_vector), top_k)
+            
+        chunks = []
+        for row in rows:
+            chunks.append(DocumentChunk(
+                id=str(row['id']),
+                doc_id=str(row['doc_id']),
+                content=row['content'],
+                score=row['score'],
+                metadata=row['metadata'] or {}
+            ))
+            
+        return chunks
