@@ -88,3 +88,4 @@ async def init_schema() -> None:
                 result       JSONB,                -- the full pipeline result as JSON
                 created_at   TIMESTAMPTZ DEFAULT now()
             );
+        """)
