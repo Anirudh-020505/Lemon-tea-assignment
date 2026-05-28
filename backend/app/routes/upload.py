@@ -55,7 +55,7 @@ async def process_document(file_path: str, filename: str, doc_id: str):
             await conn.execute("UPDATE documents SET status = 'error' WHERE id = $1", doc_id)
         print(f"Error processing document {doc_id}: {e}")
 
-@router.post("/")
+@router.post("/upload")
 async def upload_document(file: UploadFile = File(...), background_tasks: BackgroundTasks = BackgroundTasks()):
     file_bytes = await file.read()
     if len(file_bytes) > 50 * 1024 * 1024:
