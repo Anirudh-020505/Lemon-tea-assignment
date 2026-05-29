@@ -65,10 +65,11 @@ DocMind is a decoupled Full-Stack application:
 1. **Frontend**: Built with React and Vite. It utilizes a custom `useSSE` hook to consume real-time Server-Sent Events, rendering a transparent "Reasoning Trace" and streaming the LLM response token-by-token.
 2. **Backend**: Built with FastAPI. It handles async HTTP requests and manages the connection pool to the database.
 3. **Database**: Neon PostgreSQL. It stores document metadata relationally and uses the `pgvector` extension to store and index 1536-dimensional chunk embeddings.
-4. **AI Pipeline (LangGraph)**: The RAG logic is modeled as a stateful directed graph. 
-   - **Retrievers**: `text-embedding-3-large` (Dense) + `rank-bm25` (Sparse).
-   - **Reranker**: `flashrank` local Cross-Encoder.
-   - **Generator**: `gpt-5.5-2026-04-23` (LLM).
+> [!IMPORTANT]
+> **4. AI Pipeline (LangGraph)**: The RAG logic is modeled as a stateful directed graph. 
+> - **Retrievers**: `text-embedding-3-large` (Dense) + `rank-bm25` (Sparse).
+> - **Reranker**: `flashrank` local Cross-Encoder.
+> - **Generator**: `gpt-5.5-2026-04-23` (LLM).
 
 ### RAG Pipeline Flow
 
@@ -110,10 +111,17 @@ User query
 
 ## c. Design Decisions
 
-- **Hybrid Search + Reranking**: Standard dense vector search often fails on domain-specific acronyms or exact keyword matches. DocMind runs Dense and Sparse searches in parallel, merges the results, and uses a Cross-Encoder to re-score them. This guarantees extremely high retrieval precision.
-- **Agentic Orchestration (LangGraph)**: Instead of a linear script, the RAG pipeline is a state machine. This allows the system to easily implement cyclic logic in the future (e.g., if confidence is low, loop back and rewrite the query). It also allows the backend to stream exact internal state changes ("Reasoning Traces") to the UI.
-- **Server-Sent Events (SSE)**: Rather than WebSockets (which are heavy and stateful), SSE was chosen because LLM generation is a unidirectional data flow (Server → Client). SSE natively supports HTTP/2 multiplexing and works flawlessly behind serverless proxies.
-- **Unified Postgres (Neon)**: We avoided using a separate Vector DB (like Pinecone). Using Neon with `pgvector` allows us to enforce referential integrity (`ON DELETE CASCADE`) between a Document and its Vector Chunks, drastically simplifying data management.
+> [!IMPORTANT]
+> **Hybrid Search + Reranking**: Standard dense vector search often fails on domain-specific acronyms or exact keyword matches. DocMind runs Dense and Sparse searches in parallel, merges the results, and uses a Cross-Encoder to re-score them. This guarantees extremely high retrieval precision.
+
+> [!NOTE]
+> **Agentic Orchestration (LangGraph)**: Instead of a linear script, the RAG pipeline is a state machine. This allows the system to easily implement cyclic logic in the future (e.g., if confidence is low, loop back and rewrite the query). It also allows the backend to stream exact internal state changes ("Reasoning Traces") to the UI.
+
+> [!TIP]
+> **Server-Sent Events (SSE)**: Rather than WebSockets (which are heavy and stateful), SSE was chosen because LLM generation is a unidirectional data flow (Server → Client). SSE natively supports HTTP/2 multiplexing and works flawlessly behind serverless proxies.
+
+> [!WARNING]
+> **Unified Postgres (Neon)**: We avoided using a separate Vector DB (like Pinecone). Using Neon with `pgvector` allows us to enforce referential integrity (`ON DELETE CASCADE`) between a Document and its Vector Chunks, drastically simplifying data management.
 
 ---
 
