@@ -70,6 +70,42 @@ DocMind is a decoupled Full-Stack application:
    - **Reranker**: `flashrank` local Cross-Encoder.
    - **Generator**: `gpt-5.5-2026-04-23` (LLM).
 
+### RAG Pipeline Flow
+
+```text
+User query
+    │
+    ▼
+[1] classify     → regex + keywords → sets reasoning_effort (low/medium/high)
+    │
+    ▼
+[2] expand       → GPT-5.5 generates 3 query variants
+    │
+    ▼
+[3] retrieve     → parallel: dense (pgvector cosine) + sparse (BM25)
+    │
+    ▼
+[4] fuse         → RRF (Reciprocal Rank Fusion, k=60) merges dense+sparse
+    │
+    ▼
+[5] rerank       → FlashRank cross-encoder → top 6
+    │
+    ▼
+[6] diversity    → MMR filter removes near-duplicate chunks
+    │
+    ▼
+[7] self_check   → GPT-5.5 checks: "is context sufficient?"
+    │              YES → continue / NO → retry retrieve once
+    ▼
+[8] generate     → GPT-5.5 streams answer token by token
+    │
+    ▼
+[9] score        → confidence 0-100 + hallucination guard (verify citations)
+    │
+    ▼
+[10] cache       → write result to query_cache table
+```
+
 ---
 
 ## c. Design Decisions
